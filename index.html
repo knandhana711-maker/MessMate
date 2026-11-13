@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MessMate</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F7F2;--surface:#fff;--ink:#1B2A25;--muted:#5C6B65;--line:#DDE3DC;--brand:#0E5A48;--on-brand:#fff;--accent:#F0B429;--bad:#C8442F;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1714;--surface:#17221E;--ink:#E8EFEA;--muted:#94A59D;--line:#263630;--brand:#3FB496;--on-brand:#08140F;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1714;--surface:#17221E;--ink:#E8EFEA;--muted:#94A59D;--line:#263630;--brand:#3FB496;--on-brand:#08140F;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+main{max-width:640px;margin:0 auto;padding:16px 16px 96px}
+h1,h2,h3{margin:0;line-height:1.15}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.top h1{font-size:1.5rem;font-weight:800}
+.top span{color:var(--muted);font-size:.9rem}
+.board{background:var(--brand);color:var(--on-brand);border-radius:18px;padding:18px 18px 16px;margin-bottom:16px}
+.board small{opacity:.85;font-size:.9rem}
+.board h2{font-size:2rem;font-weight:800;margin:2px 0 8px}
+.board p{margin:0;font-size:1.05rem}
+.days{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+.chip{flex:1 0 auto;min-width:48px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 4px;text-align:center}
+.chip b{display:block;font-size:1.1rem}
+.chip small{color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip[aria-pressed="true"] small{color:inherit;opacity:.8}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.card-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.card-h h3{font-size:1.15rem}
+.card-h small{color:var(--muted)}
+.card ul{margin:0 0 10px;padding-left:18px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.stars{display:flex}
+.st{background:none;border:0;font-size:1.7rem;line-height:1;padding:2px 3px;color:var(--line)}
+.st.on{color:var(--accent)}
+.btn{border:1px solid var(--brand);background:transparent;color:var(--brand);border-radius:999px;padding:7px 14px;font-weight:600}
+.btn[aria-pressed="true"],.btn.solid{background:var(--brand);color:var(--on-brand)}
+label{display:block;font-weight:600;margin:12px 0 4px}
+select,input,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px}
+textarea{min-height:90px;resize:vertical}
+.msg{margin:8px 0 0;color:var(--bad);min-height:1.2em;font-size:.95rem}
+.fb .row{margin-bottom:4px}
+.fb p{margin:2px 0 0}
+.fb .del{background:none;border:0;color:var(--muted);text-decoration:underline;padding:0}
+.empty{color:var(--muted);text-align:center;padding:24px 8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font-size:1.5rem}
+.stat small{color:var(--muted)}
+.mnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.mnav h2{font-size:1.25rem}
+.mnav button{background:var(--surface);border:1px solid var(--line);border-radius:10px;width:42px;height:38px;font-size:1.1rem}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px}
+.wd{text-align:center;color:var(--muted);font-size:.8rem}
+.cell{aspect-ratio:1/1;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;justify-content:space-between}
+.cell[disabled]{opacity:.4;cursor:default}
+.cell.today{border-color:var(--brand);border-width:2px}
+.cell[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.dots{display:grid;grid-template-columns:repeat(2,5px);gap:2px}
+.dots i{width:5px;height:5px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--brand)}
+.cell[aria-pressed="true"] .dots i.on{background:var(--accent)}
+.top5 li{margin-bottom:2px}
+.top5 span{color:var(--muted)}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabs button{flex:1;background:none;border:0;border-radius:10px;padding:10px 4px;font-weight:600;color:var(--muted)}
+.tabs button[aria-current="page"]{color:var(--on-brand);background:var(--brand)}
+.note{color:var(--muted);font-size:.85rem;text-align:center;margin-top:16px}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav class="tabs" aria-label="Sections">
+<button data-act="tab" data-t="menu">Menu</button>
+<button data-act="tab" data-t="feedback">Feedback</button>
+<button data-act="tab" data-t="log">Food log</button>
+<button data-act="tab" data-t="profile">Profile</button>
+</nav>
+<script>
+const MEALS=['Breakfast','Lunch','Snacks','Dinner'];
+const TIMES={Breakfast:'7:30 to 9:00 am',Lunch:'12:30 to 2:00 pm',Snacks:'4:30 to 5:30 pm',Dinner:'7:30 to 9:30 pm'};
+/* Edit this weekly menu to match your canteen. Order: Sunday to Saturday. */
+const MENU=[
+{Breakfast:['Aloo paratha','Curd','Tea'],Lunch:['Veg biryani','Raita','Papad'],Snacks:['Samosa','Green chutney','Tea'],Dinner:['Paneer butter masala','Roti','Jeera rice']},
+{Breakfast:['Idli','Sambar','Coconut chutney'],Lunch:['Rajma','Rice','Roti','Salad'],Snacks:['Veg sandwich','Tea'],Dinner:['Mix veg','Dal tadka','Roti','Rice']},
+{Breakfast:['Poha','Boiled egg','Tea'],Lunch:['Chole','Bhature','Pickle'],Snacks:['Bread pakora','Tea'],Dinner:['Egg curry or soya chunks','Roti','Rice']},
+{Breakfast:['Upma','Banana','Tea'],Lunch:['Kadhi','Rice','Aloo fry','Roti'],Snacks:['Maggi','Tea'],Dinner:['Dal makhani','Roti','Veg pulao']},
+{Breakfast:['Masala dosa','Sambar'],Lunch:['Sambar rice','Curd','Papad'],Snacks:['Biscuits','Tea'],Dinner:['Chicken curry or paneer bhurji','Roti','Rice']},
+{Breakfast:['Puri bhaji','Tea'],Lunch:['Veg pulao','Raita','Dal'],Snacks:['Pav bhaji'],Dinner:['Fried rice','Manchurian','Soup']},
+{Breakfast:['Chole kulche','Tea'],Lunch:['Dal','Aloo gobi','Roti','Rice'],Snacks:['Dhokla','Tea'],Dinner:['Special thali','Kheer']}
+];
+const SK='messmate-v1';
+let S={log:{},ratings:{},fb:[],user:null};
+try{const r=localStorage.getItem(SK);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+let _t;
+const api=(m,u,b)=>fetch(u,{method:m,headers:{'Content-Type':'application/json',Authorization:'Bearer '+(S.token||'')},body:b?JSON.stringify(b):undefined}).catch(()=>null);
+const save=()=>{try{localStorage.setItem(SK,JSON.stringify(S))}catch(e){}clearTimeout(_t);if(S.token)_t=setTimeout(()=>api('PUT','/api/state',{log:S.log,ratings:S.ratings}),800)};
+const pad=n=>String(n).padStart(2,'0');
+const key=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=k=>{const p=k.split('-').map(Number);return new Date(p[0],p[1]-1,p[2])};
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const today=new Date();today.setHours(0,0,0,0);
+const tk=key(today);
+let tab='menu',sel=tk,mv=new Date(today.getFullYear(),today.getMonth(),1),logSel=tk,fbStars=0;
+
+const stars=(day,meal,val)=>'<div class="stars" role="group" aria-label="Rate '+meal+'">'+[1,2,3,4,5].map(i=>'<button class="st'+(i<=val?' on':'')+'" data-act="rate" data-day="'+day+'" data-meal="'+meal+'" data-v="'+i+'" aria-label="'+i+' star'+(i>1?'s':'')+'">★</button>').join('')+'</div>';
+const ate=(day,meal)=>!!(S.log[day]&&S.log[day][meal]);
+const fmt=(d,o)=>d.toLocaleDateString('en-IN',o);
+
+function mealCard(day,meal){
+  const items=MENU[parse(day).getDay()][meal];
+  const future=parse(day)>today;
+  return '<section class="card"><div class="card-h"><h3>'+meal+'</h3><small>'+TIMES[meal]+'</small></div>'+
+  '<ul>'+items.map(i=>'<li>'+i+'</li>').join('')+'</ul>'+
+  '<div class="row">'+(future?'<small>Rating opens on the day.</small>':stars(day,meal,S.ratings[day+'|'+meal]||0)+
+  '<button class="btn" data-act="ate" data-day="'+day+'" data-meal="'+meal+'" aria-pressed="'+ate(day,meal)+'">'+(ate(day,meal)?'Logged':'I ate this')+'</button>')+'</div></section>';
+}
+
+function nextMeal(){
+  const h=new Date().getHours()+new Date().getMinutes()/60;
+  return h<9?'Breakfast':h<14?'Lunch':h<17.5?'Snacks':h<21.5?'Dinner':'Breakfast';
+}
+
+function viewMenu(){
+  const nm=nextMeal(),tomorrow=nm==='Breakfast'&&new Date().getHours()>=21;
+  const bd=tomorrow?new Date(today.getTime()+864e5):today;
+  const items=MENU[bd.getDay()][nm];
+  const start=new Date(today);start.setDate(today.getDate()-today.getDay());
+  let chips='';
+  for(let i=0;i<7;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=key(d);
+    chips+='<button class="chip" data-act="day" data-day="'+k+'" aria-pressed="'+(k===sel)+'"><small>'+fmt(d,{weekday:'short'})+'</small><b>'+d.getDate()+'</b></button>';}
+  return '<div class="top"><h1>MessMate</h1><span>'+(S.user?'Hi, '+esc(S.user.name.split(' ')[0])+'. ':'')+fmt(today,{day:'numeric',month:'short'})+'</span></div>'+
+  '<div class="board"><small>'+(tomorrow?'Tomorrow morning':'Up next, '+TIMES[nm])+'</small><h2>'+nm+'</h2><p>'+items.join(', ')+'</p></div>'+
+  '<div class="days">'+chips+'</div>'+MEALS.map(m=>mealCard(sel,m)).join('');
+}
+
+function viewFeedback(){
+  const opts=[];for(let i=0;i<7;i++){const d=new Date(today.getTime()-i*864e5);opts.push('<option value="'+key(d)+'">'+(i===0?'Today':i===1?'Yesterday':fmt(d,{weekday:'long',day:'numeric',month:'short'}))+'</option>')}
+  const list=S.fb.slice().sort((a,b)=>b.ts-a.ts);
+  return '<div class="top"><h1>Feedback</h1><span>Tell the mess what you think</span></div>'+
+  '<form class="card" id="fbform" onsubmit="return false"><label for="fbday">Day</label><select id="fbday">'+opts.join('')+'</select>'+
+  '<label for="fbmeal">Meal</label><select id="fbmeal">'+MEALS.map(m=>'<option'+(m===nextMeal()?' selected':'')+'>'+m+'</option>').join('')+'</select>'+
+  '<label>Rating</label><div class="stars" id="fbstars">'+[1,2,3,4,5].map(i=>'<button type="button" class="st" data-act="fbstar" data-v="'+i+'" aria-label="'+i+' star'+(i>1?'s':'')+'">★</button>').join('')+'</div>'+
+  '<label for="fbtext">Comment</label><textarea id="fbtext" maxlength="400" placeholder="What was good, and what should change?"></textarea>'+
+  '<p class="msg" id="fbmsg" role="alert"></p><button type="button" class="btn solid" data-act="fbsubmit">Send feedback</button></form>'+
+  (list.length?list.map(f=>'<article class="card fb"><div class="row"><b>'+f.meal+', '+fmt(parse(f.day),{day:'numeric',month:'short'})+'</b><span style="color:var(--accent);font-size:1.2rem" aria-label="'+f.stars+' stars">'+'★'.repeat(f.stars)+'</span></div>'+(f.text?'<p>'+esc(f.text)+'</p>':'')+(f.who?'<small style="color:var(--muted)">'+esc(f.who)+'</small><br>':'')+'<button class="del" data-act="fbdel" data-ts="'+f.ts+'">Delete</button></article>').join(''):'<p class="empty">No feedback yet. Your first note will show up here.</p>');
+}
+
+function viewLog(){
+  const y=mv.getFullYear(),m=mv.getMonth(),n=new Date(y,m+1,0).getDate(),pre=y+'-'+pad(m+1)+'-';
+  let total=0,days=0,counts={},cells='';
+  for(let d=1;d<=n;d++){const k=pre+pad(d),L=S.log[k]||{};let c=0;
+    MEALS.forEach(ml=>{if(L[ml]){c++;MENU[parse(k).getDay()][ml].forEach(it=>counts[it]=(counts[it]||0)+1)}});
+    total+=c;if(c)days++;}
+  for(let i=0;i<mv.getDay();i++)cells+='<span></span>';
+  for(let d=1;d<=n;d++){const k=pre+pad(d),dt=parse(k);
+    cells+='<button class="cell'+(k===tk?' today':'')+'" data-act="logday" data-day="'+k+'" aria-pressed="'+(k===logSel)+'"'+(dt>today?' disabled':'')+' aria-label="'+fmt(dt,{day:'numeric',month:'long'})+'"><span>'+d+'</span><span class="dots">'+MEALS.map(ml=>'<i class="'+(ate(k,ml)?'on':'')+'"></i>').join('')+'</span></button>';}
+  const rs=Object.keys(S.ratings).filter(k=>k.indexOf(pre)===0&&S.ratings[k]).map(k=>S.ratings[k]);
+  const avg=rs.length?(rs.reduce((a,b)=>a+b,0)/rs.length).toFixed(1):'–';
+  const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const inMonth=logSel&&logSel.indexOf(pre)===0;
+  return '<div class="top"><h1>My food log</h1><span>What I ate this month</span></div>'+
+  '<div class="mnav"><button data-act="mprev" aria-label="Previous month">‹</button><h2>'+fmt(mv,{month:'long',year:'numeric'})+'</h2><button data-act="mnext" aria-label="Next month">›</button></div>'+
+  '<div class="stats"><div class="stat"><b>'+total+'</b><small>meals logged</small></div><div class="stat"><b>'+days+'</b><small>days tracked</small></div><div class="stat"><b>'+avg+'</b><small>avg rating</small></div></div>'+
+  '<div class="cal">'+['S','M','T','W','T','F','S'].map(w=>'<span class="wd">'+w+'</span>').join('')+cells+'</div>'+
+  (inMonth?'<h3 style="margin:4px 0 8px">'+fmt(parse(logSel),{weekday:'long',day:'numeric',month:'long'})+'</h3>'+MEALS.map(ml=>mealCard(logSel,ml)).join(''):'<p class="empty">Tap a day to see or edit what you ate.</p>')+
+  (top.length?'<section class="card"><h3 style="margin-bottom:6px">Most eaten this month</h3><ol class="top5">'+top.map(t=>'<li>'+t[0]+' <span>('+t[1]+'×)</span></li>').join('')+'</ol></section>':'')+
+  '<p class="note">Your log is saved on this device and synced to the mess.</p>';
+}
+
+const DEPTS=['Computer Science','Information Technology','Electronics and Communication','Electrical','Mechanical','Civil','AI and Data Science','Other'];
+function viewProfile(){
+  const u=S.user;
+  return '<div class="top"><h1>'+(u?'Your profile':'Welcome to MessMate')+'</h1></div>'+
+  (u?'':'<p style="margin:0 0 12px;color:var(--muted)">Register once to rate meals, send feedback and keep your monthly food log.</p>')+
+  '<form class="card" onsubmit="return false"><label for="rname">Full name</label><input id="rname" maxlength="60" autocomplete="name" value="'+(u?esc(u.name):'')+'">'+
+  '<label for="rsem">Semester</label><select id="rsem"><option value="">Choose semester</option>'+[1,2,3,4,5,6,7,8].map(n=>'<option value="'+n+'"'+(u&&u.sem===n?' selected':'')+'>Semester '+n+'</option>').join('')+'</select>'+
+  '<label for="rdept">Department</label><select id="rdept"><option value="">Choose department</option>'+DEPTS.map(x=>'<option'+(u&&u.dept===x?' selected':'')+'>'+x+'</option>').join('')+'</select>'+
+  '<p class="msg" id="rmsg" role="alert"></p><button type="button" class="btn solid" data-act="reg">'+(u?'Save changes':'Register')+'</button></form>'+
+  (u?'<p class="note">Registered on '+fmt(new Date(u.since),{day:'numeric',month:'long',year:'numeric'})+'. Saved on this device only.</p>':'');
+}
+
+function render(){
+  $app.innerHTML=!S.user||tab==='profile'?viewProfile():tab==='menu'?viewMenu():tab==='feedback'?viewFeedback():viewLog();
+  document.querySelector('.tabs').style.display=S.user?'':'none';
+  document.querySelectorAll('.tabs button').forEach(b=>{if(b.dataset.t===tab)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+}
+const $app=document.getElementById('app');
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act,d=b.dataset;
+  if(a==='tab'){tab=d.t;window.scrollTo(0,0);render()}
+  else if(a==='reg'){
+    const name=document.getElementById('rname').value.trim(),msg=document.getElementById('rmsg');
+    const sem=document.getElementById('rsem').value,dept=document.getElementById('rdept').value;
+    if(name.length<2){msg.textContent='Enter your full name.';return}
+    if(!sem||!dept){msg.textContent='Choose your semester and department.';return}
+    const u={name:name,sem:+sem,dept:dept,since:S.user?S.user.since:Date.now()};
+    const done=()=>{S.user=u;save();tab='menu';window.scrollTo(0,0);render()};
+    if(S.token){api('PUT','/api/profile',u);done()}
+    else{msg.textContent='Registering…';
+      fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(u)})
+      .then(r=>r.json()).then(j=>{if(!j.token)throw 0;S.token=j.token;done()})
+      .catch(()=>{msg.textContent='Could not reach the server. Check your connection and try again.'})}
+  }
+  else if(a==='day'){sel=d.day;render()}
+  else if(a==='rate'){const k=d.day+'|'+d.meal;S.ratings[k]=S.ratings[k]==+d.v?0:+d.v;save();render()}
+  else if(a==='ate'){S.log[d.day]=S.log[d.day]||{};S.log[d.day][d.meal]=!S.log[d.day][d.meal];save();render()}
+  else if(a==='logday'){logSel=d.day;render()}
+  else if(a==='mprev'||a==='mnext'){mv=new Date(mv.getFullYear(),mv.getMonth()+(a==='mnext'?1:-1),1);logSel=null;render()}
+  else if(a==='fbstar'){fbStars=+d.v;document.querySelectorAll('#fbstars .st').forEach((s,i)=>s.classList.toggle('on',i<fbStars))}
+  else if(a==='fbsubmit'){
+    const text=document.getElementById('fbtext').value.trim(),msg=document.getElementById('fbmsg');
+    if(!fbStars&&!text){msg.textContent='Add a star rating or a comment before sending.';return}
+    const day=document.getElementById('fbday').value,meal=document.getElementById('fbmeal').value;
+    S.fb.push({ts:Date.now(),day:day,meal:meal,stars:fbStars,text:text,who:S.user?S.user.name+', Sem '+S.user.sem+', '+S.user.dept:''});
+    api('POST','/api/feedback',{day:day,meal:meal,stars:fbStars,text:text});
+    if(fbStars&&!S.ratings[day+'|'+meal])S.ratings[day+'|'+meal]=fbStars;
+    fbStars=0;save();render();
+  }
+  else if(a==='fbdel'){S.fb=S.fb.filter(f=>String(f.ts)!==d.ts);save();render()}
+});
+render();
+</script>
+</body>
+</html>
